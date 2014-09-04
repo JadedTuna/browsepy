@@ -2,8 +2,19 @@
 
 import ui
 import os
-import imp
+import sys
 import json
+import apps
+
+def reload_all(mod, name):
+    reload(mod)
+    for mod in sys.modules:
+        if mod.startswith("{}.".format(name)):
+            rmod = sys.modules[mod]
+            if rmod:
+                reload(rmod)
+
+reload_all(apps, "apps")
 
 appsfn  = "apps.json"
 appsdir = "apps"
@@ -17,12 +28,13 @@ with open(appsfn) as fp:
 
 if not os.path.exists(appsdir):
     os.mkdir(appsdir)
+    with open(os.path.join(appsdir, "__init__.py"), "w"):
+        pass
 
 apps = {}
+_apps = __import__("apps", fromlist=[str(i) for i in appnames.keys()])
 for name, exts in appnames.items():
-    path = os.path.join(os.getcwd(), appsdir, "{}".format(name))
-    App = imp.load_source("{}".format(name, path), path).App
-    apps[App] = exts
+    apps[getattr(_apps, name).App] = exts
 
 class Delegate(object):
     def __init__(self):
