@@ -35,7 +35,7 @@ class Delegate(object):
         if name.endswith("/"):
             _name = name[:-1]
             if os.path.isdir(abspath):
-                lst = getDirListing(abspath)
+                lst = self.getDirListing(abspath)
                 if lst:
                     self.curpath = abspath
                     tableview.data_source.items = lst.items
@@ -47,27 +47,27 @@ class Delegate(object):
                     if ext in exts:
                         return App(view, abspath)
 
-def getDirListing(curpath):
-    try:
-        all = os.listdir(curpath)
-    except OSError:
-        return
-    folders = [i + "/" for i in all if os.path.isdir(
-                                    os.path.join(curpath, i)
-                                    )]
-    files   = [i for i in all if os.path.isfile(
-                                    os.path.join(curpath, i)
-                                    )]
-    lst = ui.ListDataSource(["../"] + folders + files)
-    lst.font = ('Courier', 18)
-    return lst
+    def getDirListing(self, curpath):
+        try:
+            all = os.listdir(curpath)
+        except OSError:
+            return
+        folders = [i + "/" for i in all if os.path.isdir(
+                                        os.path.join(curpath, i)
+                                        )]
+        files   = [i for i in all if os.path.isfile(
+                                        os.path.join(curpath, i)
+                                        )]
+        lst = ui.ListDataSource(["../"] + folders + files)
+        lst.font = ('Courier', 18)
+        return lst
 
 view = ui.View()
 
 table = ui.TableView()
 table.flex = "WH"
 table.delegate = Delegate()
-table.data_source = getDirListing(table.delegate.curpath)
+table.data_source = table.delegate.getDirListing(table.delegate.curpath)
 
 view.name = os.path.split(table.delegate.curpath)[-1]
 view.add_subview(table)
