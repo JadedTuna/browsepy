@@ -22,8 +22,6 @@ appsdir = "apps"
 if not os.path.exists(appsfn):
     save(appsfn, {})
 
-apps = load(appsfn)
-
 if not os.path.exists(appsdir):
     os.mkdir(appsdir)
     with open(os.path.join(appsdir, "__init__.py"), "w"):
@@ -39,6 +37,8 @@ def reload_all(mod, name):
                 reload(rmod)
 
 reload_all(apps, "apps")
+
+apps = load(appsfn)
 
 # Functions
 @ui.in_background
