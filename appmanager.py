@@ -2,17 +2,6 @@ import ui
 import os
 import json
 import console
-import apps
-
-def reload_all(mod, name):
-    reload(mod)
-    for mod in sys.modules:
-        if mod.startswith("{}.".format(name)):
-            rmod = sys.modules[mod]
-            if rmod:
-                reload(rmod)
-
-reload_all(apps, "apps")
 
 def save(fn, data):
     with open(fn, "w") as fp:
@@ -34,6 +23,22 @@ if not os.path.exists(appsfn):
     save(appsfn, {})
 
 apps = load(appsfn)
+
+if not os.path.exists(appsdir):
+    os.mkdir(appsdir)
+    with open(os.path.join(appsdir, "__init__.py"), "w"):
+        pass
+
+import apps
+def reload_all(mod, name):
+    reload(mod)
+    for mod in sys.modules:
+        if mod.startswith("{}.".format(name)):
+            rmod = sys.modules[mod]
+            if rmod:
+                reload(rmod)
+
+reload_all(apps, "apps")
 
 # Functions
 @ui.in_background
