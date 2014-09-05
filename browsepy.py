@@ -5,6 +5,7 @@ import os
 import sys
 import json
 import apps
+import warnings
 
 def reload_all(mod, name):
     reload(mod)
@@ -34,7 +35,11 @@ if not os.path.exists(appsdir):
 apps = {}
 _apps = __import__("apps", fromlist=[str(i) for i in appnames.keys()])
 for name, exts in appnames.items():
-    apps[getattr(_apps, name).App] = exts
+    app = getattr(_apps, name, None)
+    if not app:
+        warnings.warn("App {} not found".format(name))
+        continue 
+    apps[app.App] = exts
 
 class Delegate(object):
     def __init__(self):
