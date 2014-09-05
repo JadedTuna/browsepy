@@ -11,7 +11,7 @@ appsdir = "apps"
 
 if not os.path.exists(appsfn):
     with open(appsfn, "w") as fp:
-        fp.write("{}")
+        fp.write('{"text_viewer": [".py", ".txt", ".md"]}')
 
 with open(appsfn) as fp:
     appnames = json.load(fp)
