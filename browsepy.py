@@ -4,18 +4,7 @@ import ui
 import os
 import sys
 import json
-import apps
 import warnings
-
-def reload_all(mod, name):
-    reload(mod)
-    for mod in sys.modules:
-        if mod.startswith("{}.".format(name)):
-            rmod = sys.modules[mod]
-            if rmod:
-                reload(rmod)
-
-reload_all(apps, "apps")
 
 appsfn  = "apps.json"
 appsdir = "apps"
@@ -31,6 +20,17 @@ if not os.path.exists(appsdir):
     os.mkdir(appsdir)
     with open(os.path.join(appsdir, "__init__.py"), "w"):
         pass
+
+import apps
+def reload_all(mod, name):
+    reload(mod)
+    for mod in sys.modules:
+        if mod.startswith("{}.".format(name)):
+            rmod = sys.modules[mod]
+            if rmod:
+                reload(rmod)
+
+reload_all(apps, "apps")
 
 apps = {}
 _apps = __import__("apps", fromlist=[str(i) for i in appnames.keys()])
