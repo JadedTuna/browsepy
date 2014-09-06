@@ -88,15 +88,15 @@ def makeExtTable(appname, exts, y):
     return table
 
 def makeTable():
-    lst = ListDataSource(apps.keys())
-    delegate = Delegate()
+    def table_action(sender):
+        name = sender.items[sender.selected_row]
+        showInfo(name)
 
     table = ui.TableView()
     table.y = 55
     table.flex = "WH"
-    table.data_source = lst
-    table.delegate = delegate
-
+    table.data_source = table.delegate = ListDataSource(apps.keys())
+    table.delegate.action = table_action
     return table
 
 def getInfo(mod, appname):
@@ -138,7 +138,7 @@ def showInfo(appname):
 def newApp(table):
     @ui.in_background
     def wrapper(sender):
-        appname = console.input_alert("Enter application's name")
+        appname = console.input_alert("Enter application's name").strip()
         if appname:
             apps[appname] = []
             table.data_source.items.append(appname)
@@ -148,7 +148,7 @@ def newApp(table):
 def newExt(table, appname):
     @ui.in_background
     def wrapper(sender):
-        ext = console.input_alert("Enter extension")
+        ext = console.input_alert("Enter extension").strip()
         if ext:
             if not ext.startswith("."):
                 ext = "." + ext
@@ -162,11 +162,6 @@ def saveData(sender):
     save(appsfn, apps)
 
 # Classes
-class Delegate (object):
-    def tableview_did_select(self, tableview, section, row):
-        name = tableview.data_source.items[row]
-        showInfo(name)
-
 class ListDataSource (ui.ListDataSource):
     def tableview_delete(self, tv, section, row):
         self.reload_disabled = True
