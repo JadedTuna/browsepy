@@ -102,7 +102,6 @@ def makeTable():
 def getInfo(mod, appname):
     version = getattr(mod, "__version__", "Unknown")
     author  = getattr(mod, "__author__", "Unknown")
-    appname = appname
     exts    = apps[appname]
 
     return version, author, appname, exts
