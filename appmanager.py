@@ -95,7 +95,7 @@ def makeTable():
     table = ui.TableView()
     table.y = 55
     table.flex = "WH"
-    table.data_source = table.delegate = ListDataSource(apps.keys())
+    table.data_source = table.delegate = ListDataSource(apps)
     table.delegate.action = table_action
     return table
 
