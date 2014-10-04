@@ -1,5 +1,4 @@
-# coding: utf-8
-
+#coding: utf-8
 import ui
 import os
 import json
@@ -14,7 +13,7 @@ def load(fn):
         data = json.load(fp)
     final = {}
     for appname, exts in data.items():
-        final[appname] = [str(i) for i in exts] # ui doesn't like unicode
+        final[appname] = [i for i in exts]
 
     return final
 
@@ -76,7 +75,7 @@ def makeLabel(name, frame):
     return label
 
 def makeExtTable(appname, exts, y):
-    lst = ExtList(appname, [str(i) for i in exts])
+    lst = ExtList(appname, [i for i in exts])
         
     table = ui.TableView()
     table.name = "extview"
@@ -88,20 +87,21 @@ def makeExtTable(appname, exts, y):
     return table
 
 def makeTable():
-    def table_action(sender):
-        name = sender.items[sender.selected_row]
-        showInfo(name)
+    lst = ListDataSource(apps.keys())
+    delegate = Delegate()
 
     table = ui.TableView()
     table.y = 55
     table.flex = "WH"
-    table.data_source = table.delegate = ListDataSource(apps)
-    table.delegate.action = table_action
+    table.data_source = lst
+    table.delegate = delegate
+
     return table
 
 def getInfo(mod, appname):
     version = getattr(mod, "__version__", "Unknown")
     author  = getattr(mod, "__author__", "Unknown")
+    appname = appname
     exts    = apps[appname]
 
     return version, author, appname, exts
@@ -124,7 +124,7 @@ def showInfo(appname):
                              (10, 94, 500, 32))
     table    = makeExtTable(appname, exts, 136)
     
-    nbutton  = makeButton("New", (10, 368, 80, 32))
+    nbutton  = makeButton("Add", (10, 368, 80, 32))
     nbutton.action = newExt(table, appname)
 
     view.add_subview(verlabel)
@@ -137,8 +137,10 @@ def showInfo(appname):
 def newApp(table):
     @ui.in_background
     def wrapper(sender):
-        appname = console.input_alert("Enter application's name").strip()
+        appname = console.input_alert("Enter application's name")
         if appname:
+            if appname in table.data_source.items:
+                return error("App already in list")
             apps[appname] = []
             table.data_source.items.append(appname)
 
@@ -147,10 +149,12 @@ def newApp(table):
 def newExt(table, appname):
     @ui.in_background
     def wrapper(sender):
-        ext = console.input_alert("Enter extension").strip()
+        ext = console.input_alert("Enter extension")
         if ext:
             if not ext.startswith("."):
                 ext = "." + ext
+            if ext in table.data_source.items:
+                return error("Extensions already in list")
             apps[appname].append(ext)
             table.data_source.items.append(ext)
 
@@ -161,6 +165,11 @@ def saveData(sender):
     save(appsfn, apps)
 
 # Classes
+class Delegate (object):
+    def tableview_did_select(self, tableview, section, row):
+        name = tableview.data_source.items[row]
+        showInfo(name)
+
 class ListDataSource (ui.ListDataSource):
     def tableview_delete(self, tv, section, row):
         self.reload_disabled = True
@@ -186,7 +195,7 @@ class ExtList (ui.ListDataSource):
 # Main frame
 view = makeView("App Manager")
 
-nbutton = makeButton("New", (10, 10, 80, 32))
+nbutton = makeButton("Add", (10, 10, 80, 32))
 dbutton = makeButton("Download", (100, 10, 111, 32))
 sbutton = makeButton("Save", (221, 10, 80, 32))
 table   = makeTable()
